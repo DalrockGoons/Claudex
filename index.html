@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claudex</title>
+<link rel="icon" type="image/png" href="public/banners/banner.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090b;
+    --surface: #111114;
+    --surface-2: #17171c;
+    --surface-3: #1e1e25;
+    --border: rgba(255,255,255,0.07);
+    --border-subtle: rgba(255,255,255,0.04);
+    --gold: #d4af37;
+    --gold-light: #edd95a;
+    --gold-dim: rgba(212,175,55,0.12);
+    --gold-border: rgba(212,175,55,0.3);
+    --text: #e2e0da;
+    --text-dim: #6a6860;
+    --text-mid: #9a9890;
+    --green: #4a9e6b; --green-dim: rgba(74,158,107,0.1); --green-border: rgba(74,158,107,0.25);
+    --amber: #d97a3a; --amber-dim: rgba(217,122,58,0.1); --amber-border: rgba(217,122,58,0.25);
+    --blue: #4a8fd4;  --blue-dim: rgba(74,143,212,0.1);  --blue-border: rgba(74,143,212,0.25);
+    --purple: #8b68d4;--purple-dim: rgba(139,104,212,0.1);--purple-border: rgba(139,104,212,0.25);
+    --red: #c95a4a;   --red-dim: rgba(201,90,74,0.1);    --red-border: rgba(201,90,74,0.25);
+    --teal: #3aad9f;  --teal-dim: rgba(58,173,159,0.1);  --teal-border: rgba(58,173,159,0.25);
+    --rose: #c4547a;  --rose-dim: rgba(196,84,122,0.1);  --rose-border: rgba(196,84,122,0.25);
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-mono: 'DM Mono', 'Courier New', monospace;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 3px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.5;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -50vh; left: 50%; transform: translateX(-50%);
+    width: 100vw; height: 80vh;
+    background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.035) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ─── LAYOUT ──────────────────────────────────────── */
+  .page { position: relative; z-index: 1; }
+
+  /* ─── HEADER ──────────────────────────────────────── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(9,9,11,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 clamp(1.25rem, 4vw, 4rem);
+    height: 58px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  }
+
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 500;
+    color: var(--gold); letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+  .logo em { color: var(--text-dim); font-style: normal; }
+
+  /* Nav tabs in header */
+  .nav-tabs {
+    display: flex; gap: 2px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3px;
+  }
+
+  .nav-tab {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-dim);
+    background: transparent; border: none;
+    padding: 5px 14px; border-radius: 2px;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .nav-tab.active { color: var(--gold); background: var(--gold-dim); }
+
+  .header-right {
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 0.05em; white-space: nowrap;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ─── HERO ────────────────────────────────────────── */
+  .hero {
+    padding: clamp(3.5rem, 8vw, 6.5rem) clamp(1.25rem, 4vw, 4rem) clamp(2rem, 4vw, 3.5rem);
+    max-width: 1400px; margin: 0 auto;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--gold); letter-spacing: 0.22em; text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--gold); }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 6.5vw, 6rem);
+    font-weight: 900; line-height: 0.95; letter-spacing: -0.02em;
+    margin-bottom: 0.25em;
+    background: linear-gradient(135deg, #f2dc62 0%, #d4af37 45%, #9a7a1a 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 14px; color: var(--text-dim); max-width: 500px;
+    margin-bottom: 2.5rem; font-weight: 300; line-height: 1.75;
+  }
+
+  /* ─── SEARCH ──────────────────────────────────────── */
+  .search-wrap { position: relative; max-width: 580px; }
+
+  .search-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--text-dim); pointer-events: none; font-size: 16px; line-height: 1;
+  }
+
+  #search {
+    width: 100%;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 90px 13px 44px;
+    font-family: var(--font-mono); font-size: 13px;
+    color: var(--text); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.02em;
+  }
+  #search::placeholder { color: var(--text-dim); }
+  #search:focus {
+    border-color: var(--gold-border);
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.08);
+  }
+
+  .search-count {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);
+  }
+
+  /* ─── TAB PANELS ──────────────────────────────────── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ─── FILTER BAR ──────────────────────────────────── */
+  .filter-bar {
+    max-width: 1400px; margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 4rem) 2rem;
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    animation: fadeUp 0.5s 0.08s ease both;
+  }
+
+  .filter-label {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase;
+    margin-right: 2px;
+  }
+
+  .filter-btn {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+    color: var(--text-dim); background: transparent;
+    border: 1px solid var(--border-subtle); border-radius: 2px;
+    padding: 4px 11px; cursor: pointer; transition: all 0.12s; text-transform: uppercase;
+  }
+  .filter-btn:hover { color: var(--text); border-color: var(--border); }
+  .filter-btn.active { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+
+  /* ─── SECTION DIVIDER ─────────────────────────────── */
+  .sec-div {
+    max-width: 1400px; margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 4rem);
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 2rem;
+  }
+  .sec-div-label {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 0.2em; text-transform: uppercase; white-space: nowrap;
+  }
+  .sec-div-line { flex: 1; height: 1px; background: var(--border); }
+  .sec-div-count {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 0.1em;
+  }
+
+  /* ─── GRID WRAP ───────────────────────────────────── */
+  .grid-wrap {
+    max-width: 1400px; margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 4rem);
+    animation: fadeUp 0.5s 0.12s ease both;
+  }
+
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  /* ─── COMMAND CARD ────────────────────────────────── */
+  .cmd-card {
+    background: var(--surface);
+    padding: 24px 26px;
+    transition: background 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .cmd-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(212,175,55,0.025) 0%, transparent 55%);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .cmd-card:hover { background: var(--surface-2); }
+  .cmd-card:hover::before { opacity: 1; }
+  .cmd-card.hidden { display: none; }
+
+  .card-head {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .cmd-icon {
+    width: 34px; height: 34px; border-radius: 3px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-style: normal; border: 1px solid transparent;
+    margin-right: 10px;
+  }
+
+  .cmd-title { flex: 1; }
+  .cmd-name {
+    font-family: var(--font-mono); font-size: 15px; font-weight: 500;
+    color: var(--gold-light); letter-spacing: -0.01em; line-height: 1.2;
+  }
+  .cmd-aliases {
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);
+    margin-top: 3px; letter-spacing: 0.03em;
+  }
+
+  .cmd-badge {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 2px; border: 1px solid;
+    white-space: nowrap; flex-shrink: 0; align-self: flex-start;
+  }
+
+  .cmd-desc {
+    font-size: 12.5px; color: var(--text-mid); line-height: 1.7;
+    margin-bottom: 16px; font-weight: 300;
+  }
+
+  .usage-label {
+    font-family: var(--font-mono); font-size: 9px;
+    color: var(--text-dim); letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .cmd-usage {
+    font-family: var(--font-mono); font-size: 11.5px; color: #c4c0b4;
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+    border-left: 2px solid var(--gold); padding: 9px 13px;
+    border-radius: 2px; white-space: pre-wrap; word-break: break-all; line-height: 1.7;
+  }
+
+  /* ─── CATEGORY COLORS ─────────────────────────────── */
+  .c-session .cmd-icon { background: var(--blue-dim); border-color: var(--blue-border); color: var(--blue); }
+  .c-session .cmd-badge { color: var(--blue); border-color: var(--blue-border); background: var(--blue-dim); }
+
+  .c-git .cmd-icon { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber); }
+  .c-git .cmd-badge { color: var(--amber); border-color: var(--amber-border); background: var(--amber-dim); }
+
+  .c-config .cmd-icon { background: var(--purple-dim); border-color: var(--purple-border); color: var(--purple); }
+  .c-config .cmd-badge { color: var(--purple); border-color: var(--purple-border); background: var(--purple-dim); }
+
+  .c-memory .cmd-icon { background: var(--teal-dim); border-color: var(--teal-border); color: var(--teal); }
+  .c-memory .cmd-badge { color: var(--teal); border-color: var(--teal-border); background: var(--teal-dim); }
+
+  .c-debug .cmd-icon { background: var(--red-dim); border-color: var(--red-border); color: var(--red); }
+  .c-debug .cmd-badge { color: var(--red); border-color: var(--red-border); background: var(--red-dim); }
+
+  .c-tools .cmd-icon { background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold); }
+  .c-tools .cmd-badge { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+
+  .c-workflow .cmd-icon { background: var(--green-dim); border-color: var(--green-border); color: var(--green); }
+  .c-workflow .cmd-badge { color: var(--green); border-color: var(--green-border); background: var(--green-dim); }
+
+  .c-skills .cmd-icon { background: var(--rose-dim); border-color: var(--rose-border); color: var(--rose); }
+  .c-skills .cmd-badge { color: var(--rose); border-color: var(--rose-border); background: var(--rose-dim); }
+
+  /* ─── SHORTCUT TABLE SECTION ──────────────────────── */
+  .ref-section {
+    max-width: 1400px; margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 4rem) 3rem;
+    animation: fadeUp 0.5s 0.08s ease both;
+  }
+
+  .ref-group { margin-bottom: 3rem; }
+
+  .ref-group-title {
+    font-family: var(--font-display); font-size: 1.3rem; font-weight: 700;
+    color: var(--text); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .ref-group-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .ref-table { width: 100%; border-collapse: collapse; }
+
+  .ref-table th {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--text-dim);
+    text-align: left; padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .ref-table td {
+    padding: 10px 14px; border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top; font-size: 13px;
+    transition: background 0.12s;
+  }
+  .ref-table tr:hover td { background: var(--surface-2); }
+  .ref-table tr.hidden { display: none; }
+
+  .ref-table td:first-child {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--gold-light); white-space: nowrap; width: 200px;
+  }
+
+  .ref-table td:nth-child(2) { color: var(--text-mid); line-height: 1.65; }
+  .ref-table td:last-child {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-dim); white-space: nowrap;
+  }
+
+  .ref-table code {
+    font-family: var(--font-mono); font-size: 11px;
+    background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 2px; color: var(--gold-light);
+  }
+
+  /* Tag pill */
+  .tag {
+    display: inline-block; font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 2px; border: 1px solid;
+    margin-left: 6px; vertical-align: middle;
+  }
+
+  /* ─── TIPS ────────────────────────────────────────── */
+  .tips-wrap {
+    max-width: 1400px; margin: 0 auto;
+    padding: 0 clamp(1.25rem, 4vw, 4rem) 4rem;
+    animation: fadeUp 0.5s 0.08s ease both;
+  }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 18px;
+  }
+
+  .tip-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 24px 26px; border-radius: var(--radius);
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .tip-card:hover { border-color: var(--gold-border); transform: translateY(-2px); }
+  .tip-card.hidden { display: none; }
+
+  .tip-num {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 0.15em;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .tip-num::after { content: ''; display: block; width: 20px; height: 1px; background: var(--border); }
+
+  .tip-title {
+    font-family: var(--font-display); font-size: 18px; font-weight: 700;
+    color: var(--text); margin-bottom: 9px; line-height: 1.3;
+  }
+
+  .tip-body { font-size: 13px; color: var(--text-mid); line-height: 1.72; font-weight: 300; }
+  .tip-body code {
+    font-family: var(--font-mono); font-size: 11px;
+    background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 2px; color: var(--gold-light);
+  }
+  .tip-card.hidden { display: none; }
+
+  /* ─── EMPTY STATE ─────────────────────────────────── */
+  .empty { display: none; text-align: center; padding: 5rem 2rem; color: var(--text-dim); }
+  .empty.show { display: block; }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3; }
+  .empty p { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em; }
+
+  /* ─── FOOTER ──────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.75rem clamp(1.25rem, 4vw, 4rem);
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; z-index: 1;
+  }
+  .footer-l { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; }
+  .footer-l span { color: var(--gold); }
+  .footer-r { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; }
+
+  /* ─── ANIMATIONS ──────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SCROLLBAR ───────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.4); }
+
+  /* ─── RESPONSIVE ──────────────────────────────────── */
+  @media (max-width: 700px) {
+    .cmd-grid { grid-template-columns: 1fr; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .nav-tabs { display: none; }
+    .ref-table td:first-child { width: auto; }
+  }
+  @media (max-width: 900px) {
+    .ref-table td:last-child { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="logo">Claudex</div>
+  <nav class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="commands">Commands</button>
+    <button class="nav-tab" data-tab="shortcuts">Shortcuts</button>
+    <button class="nav-tab" data-tab="cli">CLI</button>
+    <button class="nav-tab" data-tab="config">Config</button>
+    <button class="nav-tab" data-tab="tips">Tips</button>
+  </nav>
+  <div class="header-right">Complete Reference</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Complete Reference</div>
+  <h1>Every Command.<br>Every Shortcut.</h1>
+  <p class="hero-sub">The definitive reference for Claude Code — slash commands, keyboard shortcuts, CLI flags, config files, and workflow mastery.</p>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search" placeholder="Search everything…" autocomplete="off" spellcheck="false">
+    <span class="search-count" id="searchCount"></span>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════
+     TAB: COMMANDS
+═════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="tab-commands">
+
+  <div class="filter-bar">
+    <span class="filter-label">Category:</span>
+    <button class="filter-btn active" data-cat="all">All</button>
+    <button class="filter-btn" data-cat="session">Session</button>
+    <button class="filter-btn" data-cat="git">Git</button>
+    <button class="filter-btn" data-cat="config">Config</button>
+    <button class="filter-btn" data-cat="memory">Memory</button>
+    <button class="filter-btn" data-cat="debug">Debug</button>
+    <button class="filter-btn" data-cat="tools">Tools</button>
+    <button class="filter-btn" data-cat="workflow">Workflow</button>
+    <button class="filter-btn" data-cat="skills">Skills</button>
+  </div>
+
+  <div class="sec-div">
+    <span class="sec-div-label">Slash Commands</span>
+    <div class="sec-div-line"></div>
+    <span class="sec-div-count" id="cmdCount"></span>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="cmd-grid" id="cmdGrid"></div>
+    <div class="empty" id="cmdEmpty"><div class="empty-icon">◎</div><p>No commands match your search.</p></div>
+  </div>
+
+</div><!-- /tab-commands -->
+
+<!-- ════════════════════════════════════════════════════
+     TAB: SHORTCUTS
+═════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-shortcuts">
+  <div class="ref-section" id="shortcutsSection"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     TAB: CLI
+═════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-cli">
+  <div class="ref-section" id="cliSection"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     TAB: CONFIG
+═════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-config">
+  <div class="ref-section" id="configSection"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     TAB: TIPS
+═════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-tips">
+  <div class="sec-div" style="padding-top:0.5rem">
+    <span class="sec-div-label">Tips & Tricks</span>
+    <div class="sec-div-line"></div>
+  </div>
+  <div class="tips-wrap">
+    <div class="tips-grid" id="tipsGrid"></div>
+    <div class="empty" id="tipsEmpty"><div class="empty-icon">◎</div><p>No tips match your search.</p></div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-l"><span>Claudex</span> — Claude Code Reference</span>
+  <span class="footer-r">claude.ai/claude-code</span>
+</footer>
+
+</div><!-- /page -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+
+const COMMANDS = [
+  // SESSION
+  { name:'/help', icon:'?', cat:'session', badge:'Session',
+    desc:'Display help and available slash commands. Keyboard shortcut <code>?</code> shows environment-specific shortcuts.',
+    usage:'/help\n/help <topic>' },
+  { name:'/clear', icon:'⊘', cat:'session', badge:'Session', aliases:'/reset, /new',
+    desc:'Clear conversation history and free up context window. Keeps the terminal session alive. Use /compact instead to summarize rather than discard.',
+    usage:'/clear' },
+  { name:'/compact', icon:'⊞', cat:'session', badge:'Session',
+    desc:'Summarize and compress conversation history to reduce token usage. Pass optional focus instructions to shape what the summary emphasizes.',
+    usage:'/compact\n/compact "focus on the auth changes"' },
+  { name:'/cost', icon:'$', cat:'session', badge:'Session',
+    desc:'Show token usage statistics and estimated API cost for the current session.',
+    usage:'/cost' },
+  { name:'/status', icon:'◈', cat:'session', badge:'Session',
+    desc:'Open the Settings interface (Status tab) showing model, account, version, and connectivity information.',
+    usage:'/status' },
+  { name:'/btw', icon:'💬', cat:'session', badge:'Session',
+    desc:'Ask a quick side question without adding it to conversation history. Runs independently — even while Claude is still processing. The Q&A appears in a dismissible overlay and is never saved to context. No tool access; only uses what\'s already in context. Press Space, Enter, or Escape to dismiss.',
+    usage:'/btw what does this function return?\n/btw is this a known pattern?' },
+  { name:'/resume', icon:'⊳', cat:'session', badge:'Session', aliases:'/continue',
+    desc:'Resume a previous conversation by ID or name, or open the interactive session picker to browse history.',
+    usage:'/resume\n/resume "my-session-name"\n/resume <session-id>' },
+  { name:'/rename', icon:'✎', cat:'session', badge:'Session',
+    desc:'Rename the current session. Without a name argument, auto-generates a name based on conversation content.',
+    usage:'/rename\n/rename "refactor-auth-middleware"' },
+  { name:'/branch', icon:'⎇', cat:'session', badge:'Session', aliases:'/fork',
+    desc:'Create a branch (fork) of the current conversation at this point, allowing you to explore a different direction without losing the main thread.',
+    usage:'/branch\n/branch "try-different-approach"' },
+  { name:'/rewind', icon:'↩', cat:'session', badge:'Session', aliases:'/checkpoint',
+    desc:'Rewind the conversation and/or code files to a previous checkpoint. Opens a dialog to select which message to rewind to, then optionally restores file changes.',
+    usage:'/rewind' },
+  { name:'/copy', icon:'⎘', cat:'session', badge:'Session',
+    desc:'Copy the last assistant response to clipboard. Pass N to copy the Nth-latest response. Shows a picker when multiple code blocks are present.',
+    usage:'/copy\n/copy 2' },
+  { name:'/export', icon:'↑', cat:'session', badge:'Session',
+    desc:'Export the current conversation as plain text to a file or stdout.',
+    usage:'/export\n/export conversation.txt' },
+  { name:'/login', icon:'→', cat:'session', badge:'Session',
+    desc:'Sign in to your Anthropic account or configure your API key.',
+    usage:'/login' },
+  { name:'/logout', icon:'←', cat:'session', badge:'Session',
+    desc:'Sign out from your current Anthropic account and clear stored credentials.',
+    usage:'/logout' },
+  { name:'/exit', icon:'✕', cat:'session', badge:'Session', aliases:'/quit',
+    desc:'Exit the Claude Code CLI session.',
+    usage:'/exit' },
+
+  // GIT
+  { name:'/commit', icon:'↗', cat:'git', badge:'Git',
+    desc:'Stage and create a git commit. Claude inspects the diff, writes a concise commit message following repository conventions, and confirms before committing.',
+    usage:'/commit\n/commit "feat: add OAuth flow"' },
+  { name:'/pr', icon:'⌥', cat:'git', badge:'Git',
+    desc:'Create a pull request on GitHub using the gh CLI. Generates a descriptive title and body summarizing all commits since the branch diverged from main.',
+    usage:'/pr\n/pr --draft' },
+  { name:'/pr-comments', icon:'◎', cat:'git', badge:'Git',
+    desc:'Fetch and display comments from a GitHub pull request. Auto-detects the PR for the current branch, or pass a PR URL or number. Requires the gh CLI.',
+    usage:'/pr-comments\n/pr-comments 123\n/pr-comments https://github.com/org/repo/pull/42' },
+  { name:'/review', icon:'◉', cat:'git', badge:'Git',
+    desc:'Code review of current changes or a specified branch/PR. Analyzes diffs for logic errors, security issues, style violations, and improvements. (Legacy: install the code-review plugin for newer versions.)',
+    usage:'/review\n/review main' },
+  { name:'/security-review', icon:'⚑', cat:'git', badge:'Git',
+    desc:'Analyze pending changes on the current branch for security vulnerabilities. Focuses specifically on OWASP issues, credential leaks, injection vectors, and authorization flaws.',
+    usage:'/security-review' },
+  { name:'/diff', icon:'⊟', cat:'git', badge:'Git',
+    desc:'Open an interactive diff viewer showing uncommitted changes and per-turn diffs. Navigate between files with left/right arrows.',
+    usage:'/diff' },
+  { name:'/install-github-app', icon:'⊕', cat:'git', badge:'Git',
+    desc:'Set up the Claude GitHub Actions app for the current repository, enabling automated code review and assistance in pull requests.',
+    usage:'/install-github-app' },
+
+  // CONFIG
+  { name:'/config', icon:'⚙', cat:'config', badge:'Config', aliases:'/settings',
+    desc:'Open the interactive Settings interface to view or modify all Claude Code configuration values including model, theme, permissions, and editor preferences.',
+    usage:'/config\n/config model claude-opus-4-6\n/config theme dark' },
+  { name:'/model', icon:'◉', cat:'config', badge:'Config',
+    desc:'Select or switch the active Claude model. Use left/right arrows in the picker to adjust effort level. Accepts full model IDs or aliases (sonnet, opus, haiku).',
+    usage:'/model\n/model claude-opus-4-6\n/model sonnet' },
+  { name:'/effort', icon:'⚡', cat:'config', badge:'Config',
+    desc:'Set model effort/thinking level: low, medium, high, max, or auto. Low/medium/high persist across sessions. Max is session-only (requires Opus 4.6). Auto resets to default.',
+    usage:'/effort high\n/effort max\n/effort auto' },
+  { name:'/fast', icon:'▶', cat:'config', badge:'Config',
+    desc:'Toggle Fast Mode for the current session. Fast Mode uses optimized output streaming for quicker responses — same model, faster delivery.',
+    usage:'/fast\n/fast on\n/fast off' },
+  { name:'/init', icon:'◆', cat:'config', badge:'Config',
+    desc:'Initialize a project by generating a CLAUDE.md file. Analyzes your codebase structure, conventions, and scripts. Set CLAUDE_CODE_NEW_INIT=true for an interactive multi-phase flow.',
+    usage:'/init' },
+  { name:'/theme', icon:'◑', cat:'config', badge:'Config',
+    desc:'Change the color theme. Options include light/dark variants, daltonized (colorblind-accessible) modes, and ANSI themes.',
+    usage:'/theme\n/theme dark\n/theme light' },
+  { name:'/color', icon:'◐', cat:'config', badge:'Config',
+    desc:'Set the prompt bar color for the current session to visually distinguish multiple sessions. Colors: red, blue, green, yellow, purple, orange, pink, cyan. Use "default" to reset.',
+    usage:'/color purple\n/color orange\n/color default' },
+  { name:'/permissions', icon:'⊕', cat:'config', badge:'Config', aliases:'/allowed-tools',
+    desc:'View or update tool permissions. Approve or revoke access to bash, file reads, file writes, and other tools. Changes apply immediately.',
+    usage:'/permissions\n/permissions allow bash\n/permissions deny write' },
+  { name:'/terminal-setup', icon:'⎔', cat:'config', badge:'Config',
+    desc:'Configure terminal keybindings for Shift+Enter, Option+Enter, and other shortcuts. Also sets up shell completions and status line integration. Only visible in terminals that need configuration.',
+    usage:'/terminal-setup' },
+  { name:'/statusline', icon:'▭', cat:'config', badge:'Config',
+    desc:'Configure Claude Code\'s terminal status line — the persistent status bar shown in supported terminal emulators.',
+    usage:'/statusline' },
+  { name:'/keybindings', icon:'⌨', cat:'config', badge:'Config',
+    desc:'Open or create your keybindings configuration file at ~/.claude/keybindings.json. Changes apply automatically without restarting.',
+    usage:'/keybindings' },
+  { name:'/vim', icon:'▷', cat:'config', badge:'Config',
+    desc:'Toggle between Vim and Normal editing modes at the prompt. Enables modal editing with normal, insert, and visual modes for Vim users.',
+    usage:'/vim' },
+  { name:'/voice', icon:'♪', cat:'config', badge:'Config',
+    desc:'Toggle push-to-talk voice dictation. Default key is Space (rebindable). Supports 20 languages. Requires a Claude.ai account.',
+    usage:'/voice' },
+  { name:'/privacy-settings', icon:'⊛', cat:'config', badge:'Config',
+    desc:'View and update privacy settings. Pro and Max plan subscribers only.',
+    usage:'/privacy-settings' },
+  { name:'/sandbox', icon:'⬚', cat:'config', badge:'Config',
+    desc:'Toggle sandbox mode for isolated code execution (supported platforms only).',
+    usage:'/sandbox' },
+
+  // MEMORY
+  { name:'/memory', icon:'⌘', cat:'memory', badge:'Memory',
+    desc:'Edit CLAUDE.md memory files, toggle auto-memory on/off, and view auto-memory entries. Claude auto-accumulates project knowledge in ~/.claude/projects/<project>/memory/.',
+    usage:'/memory\n/memory list\n/memory reset' },
+  { name:'/insights', icon:'◈', cat:'memory', badge:'Memory',
+    desc:'Generate an analytical report of your Claude Code usage patterns, common friction points, and productivity trends across sessions.',
+    usage:'/insights' },
+  { name:'/stats', icon:'▦', cat:'memory', badge:'Memory',
+    desc:'Visualize daily usage, session history, streaks, and model preferences as a graphical dashboard.',
+    usage:'/stats' },
+  { name:'/context', icon:'▣', cat:'memory', badge:'Memory',
+    desc:'Visualize current context window usage as a colored grid with optimization suggestions to help you manage long sessions.',
+    usage:'/context' },
+
+  // DEBUG
+  { name:'/doctor', icon:'✦', cat:'debug', badge:'Debug',
+    desc:'Run a full diagnostic on your Claude Code installation: verifies CLI version, API key validity, network connectivity, tool permissions, and outputs actionable fix suggestions.',
+    usage:'/doctor' },
+  { name:'/bug', icon:'◬', cat:'debug', badge:'Debug', aliases:'/feedback',
+    desc:'Report a bug or unexpected behavior. Opens a pre-filled GitHub issue template with diagnostic context automatically attached.',
+    usage:'/bug' },
+  { name:'/release-notes', icon:'📋', cat:'debug', badge:'Debug',
+    desc:'View the full changelog for Claude Code. Most recent version shown first.',
+    usage:'/release-notes' },
+  { name:'/usage', icon:'◧', cat:'debug', badge:'Debug',
+    desc:'Show plan usage limits and current rate limit status. Helps you track how much of your plan you\'ve consumed.',
+    usage:'/usage' },
+  { name:'/extra-usage', icon:'⊕', cat:'debug', badge:'Debug',
+    desc:'Configure extra usage purchases to keep working when you hit rate limits.',
+    usage:'/extra-usage' },
+
+  // TOOLS
+  { name:'/mcp', icon:'⋈', cat:'tools', badge:'Tools',
+    desc:'Manage Model Context Protocol server connections. List servers, add new ones, inspect available tools, and handle OAuth authentication.',
+    usage:'/mcp\n/mcp list\n/mcp add my-server npx my-server' },
+  { name:'/hooks', icon:'⊂', cat:'tools', badge:'Tools',
+    desc:'View and manage lifecycle hook configurations. Hooks fire at 20+ lifecycle events (PreToolUse, PostToolUse, Stop, SessionStart, etc.) and can run shell commands or call URLs.',
+    usage:'/hooks\n/hooks list' },
+  { name:'/tasks', icon:'☰', cat:'tools', badge:'Tools',
+    desc:'List and manage background tasks spawned during the current session. Shows pending, in-progress, and completed tasks.',
+    usage:'/tasks\n/tasks list' },
+  { name:'/add-dir', icon:'⊕', cat:'tools', badge:'Tools',
+    desc:'Add an additional working directory to the current session, giving Claude access to read and modify files in that path.',
+    usage:'/add-dir ../other-project\n/add-dir /absolute/path' },
+  { name:'/remote-control', icon:'◎', cat:'tools', badge:'Tools', aliases:'/rc',
+    desc:'Make this local session available for remote control from claude.ai or the Claude mobile app. Enables bidirectional control between web and CLI.',
+    usage:'/remote-control\n/rc my-session' },
+  { name:'/desktop', icon:'⬡', cat:'tools', badge:'Tools', aliases:'/app',
+    desc:'Continue the current session in the Claude Code Desktop app (macOS and Windows only).',
+    usage:'/desktop' },
+  { name:'/ide', icon:'⊞', cat:'tools', badge:'Tools',
+    desc:'Manage IDE integrations: show connection status, connect/disconnect VS Code or JetBrains, and verify the IDE extension is active.',
+    usage:'/ide' },
+  { name:'/plugin', icon:'⊛', cat:'tools', badge:'Tools',
+    desc:'Manage Claude Code plugins. List installed plugins, install new ones from directories, and configure plugin settings.',
+    usage:'/plugin\n/plugin list' },
+  { name:'/reload-plugins', icon:'↺', cat:'tools', badge:'Tools',
+    desc:'Reload all active plugins without restarting Claude Code. Useful during plugin development.',
+    usage:'/reload-plugins' },
+  { name:'/skills', icon:'◉', cat:'tools', badge:'Tools',
+    desc:'List all available skills (bundled and custom). Shows skill names, descriptions, and their source directory.',
+    usage:'/skills' },
+
+  // WORKFLOW
+  { name:'/plan', icon:'⊠', cat:'workflow', badge:'Workflow',
+    desc:'Enter plan mode directly from the prompt. In plan mode, Claude can read files and analyze code but cannot make any changes. Approve the plan, then exit plan mode to execute.',
+    usage:'/plan\n/plan "refactor the database layer"' },
+
+  // SKILLS (built-in bundled skills)
+  { name:'/batch', icon:'⊞', cat:'skills', badge:'Skill',
+    desc:'Orchestrate large-scale parallel changes. Spawns one background agent per unit in an isolated git worktree. Ideal for multi-file refactors, mass renames, or running the same transformation across many files. Requires a git repository.',
+    usage:'/batch add JSDoc comments to every function in src/\n/batch convert all .js files to TypeScript' },
+  { name:'/loop', icon:'↺', cat:'skills', badge:'Skill',
+    desc:'Run a prompt repeatedly on a configurable interval while the session stays open. Useful for polling, monitoring, or periodic tasks. Default interval is 10 minutes.',
+    usage:'/loop 5m check if the deploy finished\n/loop 30s run tests and report failures' },
+  { name:'/simplify', icon:'◉', cat:'skills', badge:'Skill',
+    desc:'Review recently changed files for quality and efficiency using three parallel review agents. Identifies duplication, over-engineering, and unnecessary complexity.',
+    usage:'/simplify\n/simplify "focus on the API handlers"' },
+  { name:'/debug', icon:'◬', cat:'skills', badge:'Skill',
+    desc:'Troubleshoot the current Claude Code session by reading the debug log and surfacing relevant errors or configuration issues.',
+    usage:'/debug\n/debug "why is context so large?"' },
+];
+
+// ─── SHORTCUTS ─────────────────────────────────────────
+
+const SHORTCUTS = [
+  {
+    group: 'General Controls',
+    rows: [
+      { key: 'Ctrl+C',        desc: 'Cancel current input or interrupt generation', note: 'Hardcoded' },
+      { key: 'Ctrl+D',        desc: 'Exit Claude Code session', note: 'Hardcoded' },
+      { key: 'Ctrl+F',        desc: 'Kill all background agents (press twice within 3s to confirm)', note: '' },
+      { key: 'Ctrl+G',        desc: 'Open current prompt in your default text editor', note: 'Rebindable' },
+      { key: 'Ctrl+L',        desc: 'Clear terminal screen (keeps conversation history)', note: '' },
+      { key: 'Ctrl+O',        desc: 'Toggle verbose output / show detailed tool usage', note: 'Rebindable' },
+      { key: 'Ctrl+R',        desc: 'Reverse search command history interactively', note: '' },
+      { key: 'Ctrl+T',        desc: 'Toggle task list visibility', note: 'Rebindable' },
+      { key: 'Ctrl+B',        desc: 'Background the current running task (Tmux users: press twice)', note: 'Rebindable' },
+      { key: 'Ctrl+V / Cmd+V', desc: 'Paste image from clipboard (Ctrl+V on iTerm2; Alt+V on Windows)', note: '' },
+      { key: '↑ / ↓ arrows',  desc: 'Navigate command history', note: '' },
+      { key: 'Option+P / Alt+P', desc: 'Switch models without clearing your current prompt', note: 'Rebindable' },
+      { key: 'Option+T / Alt+T', desc: 'Toggle extended thinking mode (run /terminal-setup first)', note: 'Rebindable' },
+      { key: '?',             desc: 'Show available shortcuts for your current environment', note: '' },
+    ]
+  },
+  {
+    group: 'Mode Switching',
+    rows: [
+      { key: 'Shift+Tab',     desc: 'Cycle permission modes: normal → <strong>accept edits on</strong> (auto-approves file writes, still prompts for bash) → <strong>plan mode</strong> (read-only) → normal', note: 'Alt+M on Windows without VT mode' },
+      { key: 'Esc Esc (double)', desc: 'Open rewind/summarize dialog — restore code and/or conversation to a previous point', note: '' },
+      { key: 'Escape',        desc: 'Interrupt current response; drops to a prompt to correct direction', note: '' },
+    ]
+  },
+  {
+    group: 'Text Editing',
+    rows: [
+      { key: 'Ctrl+K',  desc: 'Delete to end of line (stores deleted text for pasting)', note: '' },
+      { key: 'Ctrl+U',  desc: 'Delete entire line (stores deleted text for pasting)', note: '' },
+      { key: 'Ctrl+Y',  desc: 'Paste text deleted with Ctrl+K or Ctrl+U', note: '' },
+      { key: 'Alt+Y',   desc: 'Cycle through paste history (after Ctrl+Y)', note: '' },
+      { key: 'Alt+B',   desc: 'Move cursor back one word', note: '' },
+      { key: 'Alt+F',   desc: 'Move cursor forward one word', note: '' },
+      { key: 'Ctrl+_',  desc: 'Undo last action', note: '' },
+      { key: 'Ctrl+S',  desc: 'Stash current prompt', note: 'Rebindable' },
+    ]
+  },
+  {
+    group: 'Multiline Input',
+    rows: [
+      { key: '\\ + Enter',        desc: 'Insert newline without submitting — works in all terminals', note: 'Universal' },
+      { key: 'Option+Enter',      desc: 'Insert newline — default multiline shortcut on macOS', note: 'macOS' },
+      { key: 'Shift+Enter',       desc: 'Insert newline — works natively in iTerm2, WezTerm, Ghostty, Kitty', note: 'Modern terminals' },
+      { key: 'Ctrl+J',            desc: 'Insert line feed character for multiline input', note: '' },
+    ]
+  },
+  {
+    group: 'Confirmation Dialogs',
+    rows: [
+      { key: 'Y or Enter',    desc: 'Confirm action', note: '' },
+      { key: 'N or Escape',   desc: 'Decline action', note: '' },
+      { key: 'Tab',           desc: 'Next field', note: '' },
+      { key: 'Shift+Tab',     desc: 'Cycle permission modes', note: '' },
+      { key: 'Ctrl+E',        desc: 'Toggle permission explanation', note: '' },
+      { key: 'Ctrl+D',        desc: 'Toggle permission debug info', note: '' },
+      { key: '← / → arrows', desc: 'Navigate tabs in dialogs and model picker', note: '' },
+    ]
+  },
+  {
+    group: 'Autocomplete',
+    rows: [
+      { key: 'Tab',     desc: 'Accept autocomplete suggestion', note: '' },
+      { key: 'Escape',  desc: 'Dismiss autocomplete menu', note: '' },
+      { key: '↑ / ↓',  desc: 'Navigate autocomplete suggestions', note: '' },
+    ]
+  },
+  {
+    group: 'Vim Mode (when /vim is active)',
+    rows: [
+      { key: 'Escape',            desc: 'Enter NORMAL mode from INSERT', note: '' },
+      { key: 'i / I',             desc: 'Insert before cursor / at line start', note: 'NORMAL → INSERT' },
+      { key: 'a / A',             desc: 'Insert after cursor / at line end', note: 'NORMAL → INSERT' },
+      { key: 'o / O',             desc: 'Open new line below / above', note: 'NORMAL → INSERT' },
+      { key: 'h j k l',          desc: 'Navigate left / down / up / right', note: 'NORMAL' },
+      { key: 'w / e / b',         desc: 'Forward by word / end of word / back by word', note: 'NORMAL' },
+      { key: '0 / $ / ^',         desc: 'Line start / line end / first non-whitespace', note: 'NORMAL' },
+      { key: 'gg / G',            desc: 'Go to beginning / end of input', note: 'NORMAL' },
+      { key: 'dd / D',            desc: 'Delete line / delete to end of line', note: 'NORMAL' },
+      { key: 'dw / de',           desc: 'Delete word forward / to end of word', note: 'NORMAL' },
+      { key: 'yy / p',            desc: 'Yank (copy) line / paste', note: 'NORMAL' },
+      { key: 'cc / C',            desc: 'Change entire line / change to end', note: 'NORMAL' },
+      { key: '. (dot)',            desc: 'Repeat last change', note: 'NORMAL' },
+      { key: 'iw / aw',           desc: 'Text object: inner word / around word', note: 'Text objects' },
+      { key: 'i" / a"',           desc: 'Text object: inner / around double quotes', note: 'Text objects' },
+    ]
+  },
+];
+
+// ─── CLI FLAGS ─────────────────────────────────────────
+
+const CLI = [
+  {
+    group: 'Core Commands',
+    rows: [
+      { key: 'claude',                    desc: 'Start interactive session', note: '' },
+      { key: 'claude "query"',            desc: 'Start interactive session with initial prompt', note: '' },
+      { key: 'claude -p "query"',         desc: 'Non-interactive print mode — query and exit', note: 'Alias: --print' },
+      { key: 'cat file | claude -p "…"',  desc: 'Process piped stdin content', note: '' },
+      { key: 'claude -c',                 desc: 'Continue most recent conversation in current directory', note: 'Alias: --continue' },
+      { key: 'claude -r "<session>"',     desc: 'Resume session by ID or name', note: 'Alias: --resume' },
+      { key: 'claude update',             desc: 'Update to latest Claude Code version', note: '' },
+      { key: 'claude auth login',         desc: 'Sign in. Use --email, --sso, or --console flags', note: '' },
+      { key: 'claude auth status',        desc: 'Show authentication status as JSON (--text for human-readable)', note: '' },
+      { key: 'claude mcp',                desc: 'Configure MCP servers (see MCP subcommands below)', note: '' },
+      { key: 'claude agents',             desc: 'List all configured subagents grouped by source', note: '' },
+    ]
+  },
+  {
+    group: 'Session Flags',
+    rows: [
+      { key: '--continue / -c',          desc: 'Load most recent conversation in current directory', note: '' },
+      { key: '--resume / -r <session>',  desc: 'Resume session by ID or name', note: '' },
+      { key: '--name / -n <name>',       desc: 'Set a display name for the session', note: '' },
+      { key: '--fork-session',           desc: 'When resuming, create a new session ID instead of reusing original', note: '' },
+      { key: '--no-session-persistence', desc: 'Disable session saving — sessions cannot be resumed (print mode)', note: '' },
+      { key: '--session-id <UUID>',      desc: 'Use a specific session ID (must be valid UUID)', note: '' },
+      { key: '--from-pr <PR>',           desc: 'Resume sessions linked to a specific GitHub PR number or URL', note: '' },
+      { key: '--remote "description"',   desc: 'Create a new web session on claude.ai with given task', note: '' },
+      { key: '--teleport',               desc: 'Resume a web session locally in your terminal', note: '' },
+      { key: '--remote-control / --rc',  desc: 'Start session with Remote Control enabled for claude.ai', note: '' },
+    ]
+  },
+  {
+    group: 'Model & Behavior Flags',
+    rows: [
+      { key: '--model <name>',         desc: 'Set the model. Accepts full IDs or aliases: sonnet, opus, haiku', note: '' },
+      { key: '--effort <level>',       desc: 'Set effort level: low, medium, high, max (session-scoped)', note: '' },
+      { key: '--print / -p',           desc: 'Print response without interactive mode', note: '' },
+      { key: '--verbose',              desc: 'Enable verbose logging with full turn-by-turn output', note: '' },
+      { key: '--max-turns <N>',        desc: 'Limit agentic turns; exits with error when reached (print mode)', note: '' },
+      { key: '--max-budget-usd <amt>', desc: 'Max dollar amount to spend on API calls before stopping (print mode)', note: '' },
+      { key: '--fallback-model <n>',   desc: 'Auto-fallback to this model when default is overloaded (print mode)', note: '' },
+      { key: '--output-format <fmt>',  desc: 'Output format: text (default), json, or stream-json', note: 'Print mode' },
+      { key: '--input-format <fmt>',   desc: 'Input format: text or stream-json', note: 'Print mode' },
+      { key: '--include-partial-messages', desc: 'Include partial streaming events (requires stream-json)', note: '' },
+      { key: '--json-schema \'<json>\'', desc: 'Validate output against a JSON Schema after agent completes', note: 'Print mode' },
+    ]
+  },
+  {
+    group: 'Permissions & Safety',
+    rows: [
+      { key: '--dangerously-skip-permissions',       desc: 'Skip all permission prompts — use with extreme caution in trusted environments only', note: '⚠ Dangerous' },
+      { key: '--allow-dangerously-skip-permissions', desc: 'Enable the permission-skip option without activating it immediately', note: '' },
+      { key: '--permission-mode <mode>',             desc: 'Begin in a specified permission mode: normal, accept-edits, or plan', note: '' },
+      { key: '--permission-prompt-tool <tool>',      desc: 'Specify an MCP tool to handle permission prompts (non-interactive mode)', note: '' },
+      { key: '--allowedTools <tools>',               desc: 'Tools that execute without prompting for permission', note: '' },
+      { key: '--disallowedTools <tools>',            desc: 'Tools removed from context and unavailable to the model', note: '' },
+      { key: '--tools "Bash,Edit,Read"',             desc: 'Restrict which built-in tools Claude can use. "" disables all', note: '' },
+      { key: '--disable-slash-commands',             desc: 'Disable all skills and slash commands for this session', note: '' },
+    ]
+  },
+  {
+    group: 'Context & Directories',
+    rows: [
+      { key: '--add-dir <path>',             desc: 'Add additional working directory (validates path exists)', note: '' },
+      { key: '--worktree / -w [name]',       desc: 'Start in an isolated git worktree at <repo>/.claude/worktrees/<name>', note: '' },
+      { key: '--system-prompt "…"',          desc: 'Replace the entire system prompt with custom text', note: '' },
+      { key: '--system-prompt-file <path>',  desc: 'Replace system prompt with file contents', note: '' },
+      { key: '--append-system-prompt "…"',   desc: 'Append custom text to the end of the default system prompt', note: '' },
+      { key: '--append-system-prompt-file',  desc: 'Load and append additional system prompt from a file', note: '' },
+    ]
+  },
+  {
+    group: 'MCP & Plugins',
+    rows: [
+      { key: '--mcp-config <path>',        desc: 'Load MCP servers from JSON files or JSON strings', note: '' },
+      { key: '--strict-mcp-config',        desc: 'Only use MCP servers from --mcp-config, ignoring other config', note: '' },
+      { key: '--plugin-dir <path>',        desc: 'Load plugins from a directory for this session only (repeatable)', note: '' },
+      { key: '--channels',                 desc: 'Enable named channel servers to push messages into this session', note: 'Research preview' },
+      { key: '--agents \'<json>\'',         desc: 'Define custom subagents dynamically via JSON', note: '' },
+      { key: '--agent <name>',             desc: 'Specify a named agent for the current session', note: '' },
+    ]
+  },
+  {
+    group: 'MCP Subcommands (claude mcp …)',
+    rows: [
+      { key: 'claude mcp list',                      desc: 'List all configured MCP servers', note: '' },
+      { key: 'claude mcp add <name> <cmd>',           desc: 'Add stdio transport server', note: '' },
+      { key: 'claude mcp add --transport sse <n> <url>', desc: 'Add SSE transport server', note: '' },
+      { key: 'claude mcp add --transport http <n> <url>',desc: 'Add HTTP transport server', note: '' },
+      { key: 'claude mcp add-json <name> \'<json>\'', desc: 'Add server from JSON definition', note: '' },
+      { key: 'claude mcp add-from-claude-desktop',   desc: 'Import MCP servers from Claude Desktop config', note: '' },
+      { key: 'claude mcp remove <name>',             desc: 'Remove a configured server', note: '' },
+      { key: 'claude mcp serve',                     desc: 'Run Claude Code itself as an MCP server', note: '' },
+    ]
+  },
+  {
+    group: 'Misc Flags',
+    rows: [
+      { key: '--version / -v',      desc: 'Output the Claude Code version number', note: '' },
+      { key: '--debug ["cats"]',     desc: 'Enable debug mode with optional category filtering. Use ! prefix to exclude: "!statsig,!file"', note: '' },
+      { key: '--init',               desc: 'Run initialization hooks and start interactive mode', note: '' },
+      { key: '--init-only',          desc: 'Run initialization hooks and exit without starting session', note: '' },
+      { key: '--maintenance',        desc: 'Run maintenance hooks and exit', note: '' },
+      { key: '--ide',                desc: 'Auto-connect to IDE on startup if exactly one valid IDE is available', note: '' },
+      { key: '--chrome',             desc: 'Enable Chrome browser integration for web automation', note: '' },
+      { key: '--no-chrome',          desc: 'Disable Chrome browser integration for this session', note: '' },
+      { key: '--betas <headers>',    desc: 'Beta headers to include in API requests (API key users only)', note: '' },
+      { key: '--settings <path>',    desc: 'Path to a settings JSON file or inline JSON string', note: '' },
+      { key: '--setting-sources',    desc: 'Comma-separated sources to load: user, project, local', note: '' },
+      { key: '--teammate-mode',      desc: 'Set how agent team teammates display: auto, in-process, or tmux', note: '' },
+    ]
+  },
+];
+
+// ─── CONFIG / FILES / ENV VARS ─────────────────────────
+
+const CONFIG = [
+  {
+    group: 'Special Prompt Syntax',
+    rows: [
+      { key: '/',       desc: 'Invoke a slash command or skill (e.g. /help, /commit, /batch …)', note: '' },
+      { key: '!',       desc: 'Bash mode — run shell commands directly. Output is added to conversation context. Tab autocomplete from previous ! commands. Exit with Esc, Backspace, or Ctrl+U on empty prompt.', note: '' },
+      { key: '@<file>', desc: 'Reference a file or directory — triggers path autocomplete and pulls content into context', note: '' },
+      { key: '@terminal:<name>', desc: 'Reference a named terminal output (VS Code only)', note: '' },
+      { key: 'Prompt suggestions', desc: 'After Claude responds, a grayed-out suggested follow-up appears. Press Tab to accept or Enter to accept and submit. Disable with CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION=false', note: '' },
+    ]
+  },
+  {
+    group: 'Configuration Files — Project (version-controlled)',
+    rows: [
+      { key: 'CLAUDE.md',                     desc: 'Project instructions for all team members — loaded at session start', note: '' },
+      { key: '.claude/CLAUDE.md',             desc: 'Alternate location for project instructions', note: '' },
+      { key: '.claude/settings.json',         desc: 'Project-level settings shared with the team', note: '' },
+      { key: '.claude/settings.local.json',   desc: 'Personal overrides — should be git-ignored', note: '' },
+      { key: '.claude/skills/<name>/SKILL.md',desc: 'Custom skills / slash commands for this project', note: '' },
+      { key: '.claude/commands/<name>.md',    desc: 'Legacy custom commands (still supported)', note: '' },
+      { key: '.claude/agents/<name>.md',      desc: 'Custom subagent definitions', note: '' },
+      { key: '.claude/rules/<name>.md',       desc: 'Modular rule files. Add paths: frontmatter to scope to file patterns', note: '' },
+      { key: '.mcp.json',                     desc: 'MCP server configuration for this project', note: '' },
+    ]
+  },
+  {
+    group: 'Configuration Files — Personal / Global',
+    rows: [
+      { key: '~/.claude/CLAUDE.md',                        desc: 'Global personal instructions applied to all projects', note: '' },
+      { key: '~/.claude/settings.json',                    desc: 'Global user settings', note: '' },
+      { key: '~/.claude/keybindings.json',                 desc: 'Custom keybindings (create/edit with /keybindings)', note: '' },
+      { key: '~/.claude/skills/',                          desc: 'Personal skills available in all projects', note: '' },
+      { key: '~/.claude/agents/',                          desc: 'Personal subagent definitions', note: '' },
+      { key: '~/.claude/rules/',                           desc: 'Personal rules applied to all projects', note: '' },
+      { key: '~/.claude/projects/<proj>/memory/MEMORY.md', desc: 'Auto-memory: Claude\'s accumulated project knowledge', note: '' },
+    ]
+  },
+  {
+    group: 'Environment Variables',
+    rows: [
+      { key: 'ANTHROPIC_BASE_URL',                   desc: 'Custom API base URL for proxies or enterprise gateways', note: '' },
+      { key: 'CLAUDE_CODE_EFFORT_LEVEL',             desc: 'Thinking level: low, medium, high (default: high)', note: '' },
+      { key: 'CLAUDE_CODE_DISABLE_AUTO_MEMORY',      desc: 'Set to 1 to disable automatic memory accumulation', note: '' },
+      { key: 'CLAUDE_CODE_DISABLE_BACKGROUND_TASKS', desc: 'Set to 1 to disable all background task functionality', note: '' },
+      { key: 'CLAUDE_CODE_DISABLE_CRON',             desc: 'Stop scheduled jobs mid-session', note: '' },
+      { key: 'CLAUDE_CODE_DISABLE_TERMINAL_TITLE',   desc: 'Disable terminal title changes', note: '' },
+      { key: 'CLAUDE_CODE_DISABLE_1M_CONTEXT',       desc: 'Disable 1M context window', note: '' },
+      { key: 'CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION', desc: 'Set to false to disable prompt suggestions', note: '' },
+      { key: 'CLAUDE_CODE_MAX_OUTPUT_TOKENS',        desc: 'Max model output tokens (default: 32000)', note: '' },
+      { key: 'CLAUDE_CODE_NEW_INIT',                 desc: 'Set to true to enable interactive multi-phase /init flow', note: '' },
+      { key: 'CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD', desc: 'Set to 1 to load CLAUDE.md from --add-dir directories', note: '' },
+      { key: 'CLAUDE_CODE_TASK_LIST_ID',             desc: 'Named task list directory in ~/.claude/tasks/ for cross-session sharing', note: '' },
+      { key: 'BASH_DEFAULT_TIMEOUT_MS',              desc: 'Default Bash tool timeout in ms (default: 120000)', note: '' },
+      { key: 'BASH_MAX_TIMEOUT_MS',                  desc: 'Maximum Bash tool timeout in ms (default: 600000)', note: '' },
+      { key: 'MAX_MCP_OUTPUT_TOKENS',               desc: 'Max tokens for MCP tool output (default: 25000)', note: '' },
+      { key: 'SLASH_COMMAND_TOOL_CHAR_BUDGET',       desc: 'Override skill description character budget', note: '' },
+      { key: 'ENABLE_TOOL_SEARCH',                   desc: 'Enable lazy MCP tool loading (default: auto:10)', note: '' },
+    ]
+  },
+  {
+    group: 'Hook Events (lifecycle triggers)',
+    rows: [
+      { key: 'PreToolUse',       desc: 'Fires before any tool executes — can block the tool call', note: '' },
+      { key: 'PostToolUse',      desc: 'Fires after a tool successfully executes', note: '' },
+      { key: 'PostToolUseFailure', desc: 'Fires after a tool fails', note: '' },
+      { key: 'Stop',             desc: 'Fires when the session ends normally', note: '' },
+      { key: 'StopFailure',      desc: 'Fires when a turn ends due to API error', note: '' },
+      { key: 'SessionStart',     desc: 'Fires on session start', note: '' },
+      { key: 'SessionEnd',       desc: 'Fires on session termination', note: '' },
+      { key: 'UserPromptSubmit', desc: 'Fires when a prompt is submitted by the user', note: '' },
+      { key: 'PermissionRequest', desc: 'Fires when Claude requests a permission from the user', note: '' },
+      { key: 'Elicitation',      desc: 'Fires when an MCP server requests structured input', note: '' },
+      { key: 'ElicitationResult', desc: 'Fires after an elicitation dialog completes', note: '' },
+      { key: 'Notification',     desc: 'Fires on notification events', note: '' },
+      { key: 'InstructionsLoaded', desc: 'Fires when CLAUDE.md and rules files are loaded', note: '' },
+      { key: 'ConfigChange',     desc: 'Fires on configuration change', note: '' },
+      { key: 'SubagentStart',    desc: 'Fires when a subagent launches', note: '' },
+      { key: 'SubagentStop',     desc: 'Fires when a subagent terminates', note: '' },
+      { key: 'TeammateIdle',     desc: 'Fires when a teammate agent goes idle', note: '' },
+      { key: 'TaskCompleted',    desc: 'Fires when a background task completes', note: '' },
+      { key: 'PreCompact',       desc: 'Fires before context compaction', note: '' },
+      { key: 'WorktreeCreate',   desc: 'Fires when a git worktree is created', note: '' },
+      { key: 'WorktreeRemove',   desc: 'Fires when a git worktree is removed', note: '' },
+    ]
+  },
+];
+
+// ─── TIPS ──────────────────────────────────────────────
+
+const TIPS = [
+  { title: 'Use CLAUDE.md as your project brain',
+    body: 'Run <code>/init</code> in any project to auto-generate a <code>CLAUDE.md</code> file. Claude reads this at session start — use it for conventions, banned patterns, test commands, and architectural decisions. Add <code>@path/to/file</code> in CLAUDE.md to import other files into context.' },
+  { title: '/btw for side questions without polluting context',
+    body: 'Use <code>/btw</code> to ask a quick question while Claude is still working — it runs independently, appears in a dismissible overlay, and is never saved to conversation history. Low cost, zero interruption.' },
+  { title: 'Escape to interrupt, double Escape to rewind',
+    body: 'Press <code>Escape</code> once to interrupt a running response and correct direction. Press it <em>twice</em> to open the rewind dialog, where you can restore both conversation and file state to any previous checkpoint.' },
+  { title: 'Shift+Tab cycles permission modes',
+    body: 'Press <code>Shift+Tab</code> (or <code>Alt+M</code> on Windows) to cycle through three modes: <strong>normal</strong> (prompts for everything) → <strong>accept edits on</strong> (auto-approves file writes/edits, still asks before running bash) → <strong>plan mode</strong> (read-only, no changes allowed). The current mode is shown in the status line.' },
+  { title: 'Use ! for direct bash without leaving context',
+    body: 'Type <code>!</code> at the start of a prompt to drop into bash mode. Your command\'s output is added to conversation context automatically — great for piping errors, test output, or file listings directly into Claude\'s understanding.' },
+  { title: '@file references pull content into context',
+    body: 'Type <code>@filename</code> in your prompt to inject a file\'s content. Path autocomplete activates after @, so you can quickly navigate your project tree. Works for directories too — Claude will see the file tree.' },
+  { title: 'Pipe content from the shell',
+    body: 'Feed any content into Claude from your terminal: <code>cat error.log | claude -p "explain this"</code> or <code>git diff | claude -p "review this diff"</code>. Great for logs, diffs, or command output.' },
+  { title: 'Run headless with --print for scripts',
+    body: 'Use <code>claude --print "prompt"</code> for non-interactive one-shot responses. Use <code>--output-format json</code> for structured output. Combine with <code>--max-turns</code> and <code>--max-budget-usd</code> for safe CI/CD automation.' },
+  { title: 'Plan before acting on complex tasks',
+    body: 'Use <code>/plan</code> or ask Claude to "plan without making changes yet." Claude reads files and maps out its approach. Review, correct the direction, then say "now do it." Catches misunderstandings before they become diffs.' },
+  { title: '/compact over /clear on long sessions',
+    body: 'Use <code>/compact</code> instead of <code>/clear</code> when context gets large. Claude summarizes what it knows and continues — preserving task context without burning tokens re-establishing everything from scratch.' },
+  { title: 'Model-switch mid-session for different tasks',
+    body: 'Use <code>/model</code> or <code>Option+P</code> to switch models without clearing context. Start with Haiku for quick scaffolding, switch to Opus for a hard bug, back to Sonnet for bulk implementation.' },
+  { title: 'Session naming makes resuming trivial',
+    body: 'Name sessions with <code>claude -n "feature-auth"</code> or <code>/rename</code>. Resume by name with <code>claude -r "feature-auth"</code>. Combined with <code>/branch</code>, you can maintain parallel investigations on the same codebase.' },
+  { title: 'Auto-memory accumulates project knowledge',
+    body: 'Claude automatically saves project-specific knowledge to <code>~/.claude/projects/<project>/memory/</code>. Use <code>/memory</code> to view, edit, or disable this. Pair with a global <code>~/.claude/CLAUDE.md</code> for preferences that apply everywhere.' },
+  { title: 'Hooks automate repetitive workflows',
+    body: 'Configure hooks in <code>.claude/settings.json</code> to run shell commands at 20+ lifecycle events — run lint after PostToolUse, send a Slack notification on Stop, or block dangerous commands in PreToolUse. Treat Claude like a programmable CI step.' },
+  { title: 'MCP servers extend Claude\'s native reach',
+    body: 'Connect MCP servers with <code>/mcp add</code> or <code>claude mcp add</code>. Each server exposes tools Claude can call natively — databases, GitHub, Slack, browser automation, custom internal APIs. Run <code>claude mcp serve</code> to expose Claude itself as an MCP server.' },
+  { title: '/batch for large-scale parallel changes',
+    body: 'Use the <code>/batch</code> skill to spawn parallel agents for high-volume tasks — converting file formats, adding annotations across dozens of files, or mass refactoring. Each agent works in an isolated git worktree, keeping your working tree clean.' },
+  { title: 'Scope your instructions to prevent drift',
+    body: 'Be explicit: "only modify auth.ts, do not touch the tests." Claude is eager to help and may improve adjacent code. Tight scoping keeps diffs small, reviewable, and focused on what you actually asked for.' },
+  { title: 'Path-scoped rules keep instructions relevant',
+    body: 'In <code>.claude/rules/</code>, add YAML frontmatter with <code>paths: ["src/api/**"]</code> to only apply certain rules when working in that directory. Keep your REST API rules separate from your frontend rules.' },
+  { title: 'Use /worktree for risky experiments',
+    body: 'Run <code>claude --worktree</code> to start in an isolated git worktree. Your main working tree is untouched. If the experiment fails, discard the worktree. If it works, merge it in. Zero risk to in-progress work.' },
+  { title: 'Ctrl+G opens your prompt in $EDITOR',
+    body: 'Press <code>Ctrl+G</code> to open your current prompt in your system\'s default text editor. Write a long, structured prompt in a real editor with syntax highlighting and multi-cursor, then save and close to submit it.' },
+];
+
+// ═══════════════════════════════════════════════════════
+//  RENDER HELPERS
+// ═══════════════════════════════════════════════════════
+
+function esc(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── Commands Grid ─────────────────────────────────────
+
+function renderCommands() {
+  const grid = document.getElementById('cmdGrid');
+  grid.innerHTML = COMMANDS.map(cmd => `
+    <div class="cmd-card c-${cmd.cat}"
+         data-name="${esc(cmd.name)}"
+         data-desc="${cmd.desc.replace(/<[^>]+>/g,'').toLowerCase()}"
+         data-cat="${cmd.cat}"
+         data-aliases="${(cmd.aliases||'').toLowerCase()}"
+         data-usage="${cmd.usage.toLowerCase()}">
+      <div class="card-head">
+        <div class="cmd-icon">${cmd.icon}</div>
+        <div class="cmd-title">
+          <div class="cmd-name">${esc(cmd.name)}</div>
+          ${cmd.aliases ? `<div class="cmd-aliases">also: ${esc(cmd.aliases)}</div>` : ''}
+        </div>
+        <div class="cmd-badge">${esc(cmd.badge)}</div>
+      </div>
+      <div class="cmd-desc">${cmd.desc}</div>
+      <div class="usage-label">Usage</div>
+      <div class="cmd-usage">${esc(cmd.usage)}</div>
+    </div>
+  `).join('');
+  updateCmdCount();
+}
+
+function updateCmdCount() {
+  const total = document.querySelectorAll('.cmd-card:not(.hidden)').length;
+  document.getElementById('cmdCount').textContent = total + ' commands';
+}
+
+// ─── Reference Table ───────────────────────────────────
+
+function renderRefSection(containerId, data) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = data.map(group => `
+    <div class="ref-group">
+      <div class="ref-group-title">${esc(group.group)}</div>
+      <table class="ref-table">
+        <thead><tr>
+          <th>Key / Command</th>
+          <th>Description</th>
+          <th>Note</th>
+        </tr></thead>
+        <tbody>
+          ${group.rows.map(row => `
+            <tr data-key="${esc(row.key).toLowerCase()}" data-desc="${row.desc.replace(/<[^>]+>/g,'').toLowerCase()}">
+              <td>${esc(row.key)}</td>
+              <td>${row.desc}</td>
+              <td>${esc(row.note)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
+}
+
+// ─── Tips ──────────────────────────────────────────────
+
+function renderTips() {
+  const grid = document.getElementById('tipsGrid');
+  grid.innerHTML = TIPS.map((tip, i) => `
+    <div class="tip-card"
+         data-title="${tip.title.toLowerCase()}"
+         data-body="${tip.body.replace(/<[^>]+>/g,'').toLowerCase()}">
+      <div class="tip-num">TIP ${String(i+1).padStart(2,'0')}</div>
+      <div class="tip-title">${esc(tip.title)}</div>
+      <div class="tip-body">${tip.body}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════════
+
+let activeTab = 'commands';
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelector(`.nav-tab[data-tab="${tab}"]`).classList.add('active');
+  applySearch(document.getElementById('search').value);
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ═══════════════════════════════════════════════════════
+//  CATEGORY FILTER
+// ═══════════════════════════════════════════════════════
+
+let activeFilter = 'all';
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.cat;
+    applySearch(document.getElementById('search').value);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════════
+
+function applySearch(q) {
+  q = q.trim().toLowerCase();
+
+  if (activeTab === 'commands') {
+    let visible = 0;
+    document.querySelectorAll('.cmd-card').forEach(card => {
+      const catMatch = activeFilter === 'all' || card.dataset.cat === activeFilter;
+      const searchMatch = !q ||
+        card.dataset.name.includes(q) ||
+        card.dataset.desc.includes(q) ||
+        card.dataset.usage.includes(q) ||
+        card.dataset.aliases.includes(q) ||
+        card.dataset.cat.includes(q);
+      const show = catMatch && searchMatch;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    document.getElementById('cmdEmpty').classList.toggle('show', visible === 0);
+    document.getElementById('cmdCount').textContent = visible + ' command' + (visible !== 1 ? 's' : '');
+    document.getElementById('searchCount').textContent = q ? visible + ' result' + (visible !== 1 ? 's' : '') : '';
+  }
+
+  else if (activeTab === 'shortcuts' || activeTab === 'cli' || activeTab === 'config') {
+    const sectionId = activeTab === 'shortcuts' ? 'shortcutsSection' :
+                      activeTab === 'cli' ? 'cliSection' : 'configSection';
+    let visible = 0;
+    document.querySelectorAll(`#${sectionId} .ref-table tr[data-key]`).forEach(row => {
+      const show = !q || row.dataset.key.includes(q) || row.dataset.desc.includes(q);
+      row.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    // show/hide group headers if all rows hidden
+    document.querySelectorAll(`#${sectionId} .ref-group`).forEach(grp => {
+      const anyVisible = [...grp.querySelectorAll('tr[data-key]')].some(r => !r.classList.contains('hidden'));
+      grp.style.display = anyVisible ? '' : 'none';
+    });
+    document.getElementById('searchCount').textContent = q ? visible + ' result' + (visible !== 1 ? 's' : '') : '';
+  }
+
+  else if (activeTab === 'tips') {
+    let visible = 0;
+    document.querySelectorAll('.tip-card').forEach(card => {
+      const show = !q || card.dataset.title.includes(q) || card.dataset.body.includes(q);
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    document.getElementById('tipsEmpty').classList.toggle('show', visible === 0);
+    document.getElementById('searchCount').textContent = q ? visible + ' result' + (visible !== 1 ? 's' : '') : '';
+  }
+}
+
+document.getElementById('search').addEventListener('input', e => applySearch(e.target.value));
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+
+renderCommands();
+renderRefSection('shortcutsSection', SHORTCUTS);
+renderRefSection('cliSection', CLI);
+renderRefSection('configSection', CONFIG);
+renderTips();
+</script>
+</body>
+</html>
