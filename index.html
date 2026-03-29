@@ -319,6 +319,12 @@
   .c-skills .cmd-icon { background: var(--rose-dim); border-color: var(--rose-border); color: var(--rose); }
   .c-skills .cmd-badge { color: var(--rose); border-color: var(--rose-border); background: var(--rose-dim); }
 
+  .c-plugin .cmd-icon { background: var(--teal-dim); border-color: var(--teal-border); color: var(--teal); }
+  .c-plugin .cmd-badge { color: var(--teal); border-color: var(--teal-border); background: var(--teal-dim); }
+
+  .c-tips .cmd-icon { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber); }
+  .c-tips .cmd-badge { color: var(--amber); border-color: var(--amber-border); background: var(--amber-dim); }
+
   /* ─── SHORTCUT TABLE SECTION ──────────────────────── */
   .ref-section {
     max-width: 1400px; margin: 0 auto;
@@ -471,6 +477,7 @@
     <button class="nav-tab" data-tab="cli">CLI</button>
     <button class="nav-tab" data-tab="config">Config</button>
     <button class="nav-tab" data-tab="tips">Tips</button>
+    <button class="nav-tab" data-tab="plugins">Plugins</button>
   </nav>
   <div class="header-right">Complete Reference</div>
 </header>
@@ -506,6 +513,8 @@
     <button class="filter-btn" data-cat="tools">Tools</button>
     <button class="filter-btn" data-cat="workflow">Workflow</button>
     <button class="filter-btn" data-cat="skills">Skills</button>
+    <button class="filter-btn" data-cat="plugin">Plugin</button>
+    <button class="filter-btn" data-cat="tips">Tips</button>
   </div>
 
   <div class="sec-div">
@@ -553,6 +562,21 @@
   <div class="tips-wrap">
     <div class="tips-grid" id="tipsGrid"></div>
     <div class="empty" id="tipsEmpty"><div class="empty-icon">◎</div><p>No tips match your search.</p></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     TAB: PLUGINS
+═════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="tab-plugins">
+  <div class="sec-div" style="padding-top:0.5rem">
+    <span class="sec-div-label">Plugins</span>
+    <div class="sec-div-line"></div>
+    <span class="sec-div-count" id="pluginCount"></span>
+  </div>
+  <div class="grid-wrap">
+    <div class="cmd-grid" id="pluginGrid"></div>
+    <div class="empty" id="pluginEmpty"><div class="empty-icon">◎</div><p>No plugins match your search.</p></div>
   </div>
 </div>
 
@@ -767,6 +791,14 @@ const COMMANDS = [
   { name:'/debug', icon:'◬', cat:'skills', badge:'Skill',
     desc:'Troubleshoot the current Claude Code session by reading the debug log and surfacing relevant errors or configuration issues.',
     usage:'/debug\n/debug "why is context so large?"' },
+
+  // PLUGINS
+  { name:'frontend-design', icon:'◈', cat:'plugin', badge:'Plugin',
+    desc:'Create distinctive, production-grade frontend interfaces with high design quality. Avoids generic AI aesthetics — generates polished components and pages with considered typography, spacing, color, and interaction design.',
+    usage:'/frontend-design\nfrontend-design:frontend-design' },
+  { name:'ultrathink', icon:'◎', cat:'tips', badge:'Tip',
+    desc:'Include <code>ultrathink</code> anywhere in your message to activate Claude\'s maximum thinking budget. Claude reasons deeply before responding. Weaker variants: <code>think</code>, <code>think hard</code>, <code>think harder</code> — each allocates progressively more budget.',
+    usage:'ultrathink\nultrathink about this architecture\nthink hard / think harder / ultrathink' },
 ];
 
 // ─── SHORTCUTS ─────────────────────────────────────────
@@ -1112,6 +1144,18 @@ const TIPS = [
     body: 'Run <code>claude --worktree</code> to start in an isolated git worktree. Your main working tree is untouched. If the experiment fails, discard the worktree. If it works, merge it in. Zero risk to in-progress work.' },
   { title: 'Ctrl+G opens your prompt in $EDITOR',
     body: 'Press <code>Ctrl+G</code> to open your current prompt in your system\'s default text editor. Write a long, structured prompt in a real editor with syntax highlighting and multi-cursor, then save and close to submit it.' },
+  { title: 'ultrathink triggers maximum extended reasoning',
+    body: 'Include the word <code>ultrathink</code> anywhere in your message to activate Claude\'s maximum thinking budget. Claude will spend significantly more time reasoning through the problem before responding — ideal for hard architectural decisions, subtle bugs, and multi-step reasoning tasks. Weaker variants <code>think</code>, <code>think hard</code>, and <code>think harder</code> allocate progressively more budget, but <code>ultrathink</code> goes all the way.' },
+  { title: 'frontend-design plugin for production-grade UI',
+    body: 'The <code>frontend-design</code> plugin skill creates distinctive, production-grade frontend components and pages with high design quality. Invoke it with <code>/frontend-design</code> in your session. It avoids generic AI aesthetics and generates creative, polished interfaces with considered typography, spacing, color, and interaction design — useful any time you need a web component, page, or full application built to a high visual bar.' },
+];
+
+// ─── PLUGINS ───────────────────────────────────────────
+
+const PLUGINS = [
+  { name: 'frontend-design', icon: '◈', cat: 'plugin', badge: 'Plugin',
+    desc: 'Create distinctive, production-grade frontend interfaces with high design quality. Avoids generic AI aesthetics — generates creative, polished components and pages with considered typography, spacing, color, and interaction design. Trigger with <code>/frontend-design</code> in your session or reference it in your prompt.',
+    usage: '/frontend-design\n/frontend-design "build a dark dashboard with charts"\nfrontend-design:frontend-design' },
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -1194,6 +1238,32 @@ function renderTips() {
       <div class="tip-body">${tip.body}</div>
     </div>
   `).join('');
+}
+
+// ─── Plugins ───────────────────────────────────────────
+
+function renderPlugins() {
+  const grid = document.getElementById('pluginGrid');
+  grid.innerHTML = PLUGINS.map(p => `
+    <div class="cmd-card c-${p.cat}"
+         data-name="${esc(p.name)}"
+         data-desc="${p.desc.replace(/<[^>]+>/g,'').toLowerCase()}"
+         data-cat="${p.cat}"
+         data-aliases=""
+         data-usage="${p.usage.toLowerCase()}">
+      <div class="card-head">
+        <div class="cmd-icon">${p.icon}</div>
+        <div class="cmd-title">
+          <div class="cmd-name">${esc(p.name)}</div>
+        </div>
+        <div class="cmd-badge">${esc(p.badge)}</div>
+      </div>
+      <div class="cmd-desc">${p.desc}</div>
+      <div class="usage-label">Usage</div>
+      <div class="cmd-usage">${esc(p.usage)}</div>
+    </div>
+  `).join('');
+  document.getElementById('pluginCount').textContent = PLUGINS.length + ' plugin' + (PLUGINS.length !== 1 ? 's' : '');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1283,6 +1353,20 @@ function applySearch(q) {
     document.getElementById('tipsEmpty').classList.toggle('show', visible === 0);
     document.getElementById('searchCount').textContent = q ? visible + ' result' + (visible !== 1 ? 's' : '') : '';
   }
+
+  else if (activeTab === 'plugins') {
+    let visible = 0;
+    document.querySelectorAll('#pluginGrid .cmd-card').forEach(card => {
+      const show = !q ||
+        card.dataset.name.includes(q) ||
+        card.dataset.desc.includes(q) ||
+        card.dataset.usage.includes(q);
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    document.getElementById('pluginEmpty').classList.toggle('show', visible === 0);
+    document.getElementById('searchCount').textContent = q ? visible + ' result' + (visible !== 1 ? 's' : '') : '';
+  }
 }
 
 document.getElementById('search').addEventListener('input', e => applySearch(e.target.value));
@@ -1296,6 +1380,7 @@ renderRefSection('shortcutsSection', SHORTCUTS);
 renderRefSection('cliSection', CLI);
 renderRefSection('configSection', CONFIG);
 renderTips();
+renderPlugins();
 </script>
 </body>
 </html>
