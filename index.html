@@ -709,11 +709,17 @@ const COMMANDS = [
   { name:'/sandbox', icon:'⬚', cat:'config', badge:'Config',
     desc:'Toggle sandbox mode for isolated code execution (supported platforms only).',
     usage:'/sandbox' },
+  { name:'Auto Mode', icon:'⚡', cat:'config', badge:'Config',
+    desc:'Autonomous permission mode where Claude uses a real-time classifier to evaluate each action — approving those within scope without prompting and pausing only when a boundary is detected. Eliminates constant permission prompts for long, trusted workflows. Enable by cycling with <code>Shift+Tab</code> or set <code>defaultMode: "auto"</code> in settings.json. Requires Sonnet 4.6+ or Opus 4.6 on a Team or Enterprise plan.',
+    usage:'# Cycle with Shift+Tab\n# Or in .claude/settings.json:\n{ "permissions": { "defaultMode": "auto" } }' },
 
   // MEMORY
   { name:'/memory', icon:'⌘', cat:'memory', badge:'Memory',
-    desc:'Edit CLAUDE.md memory files, toggle auto-memory on/off, and view auto-memory entries. Claude auto-accumulates project knowledge in ~/.claude/projects/<project>/memory/.',
+    desc:'Edit CLAUDE.md memory files, toggle auto-memory on/off, and view auto-memory entries. Auto-memory is enabled by default — Claude continuously saves learnings (build commands, patterns, architecture decisions, style preferences) to <code>~/.claude/projects/&lt;project&gt;/memory/</code> as indexed markdown files, which are loaded automatically at session start. Disable with <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code> or via <code>/memory</code> toggle.',
     usage:'/memory\n/memory list\n/memory reset' },
+  { name:'/dream', icon:'◌', cat:'memory', badge:'Memory',
+    desc:'Consolidate and clean up accumulated auto-memory files. Claude reviews all memory notes, removes contradictions and outdated entries, strengthens still-relevant learnings, and reorganizes files into a clean indexed structure. Run after major refactors or whenever memory files have grown cluttered.',
+    usage:'/dream' },
   { name:'/insights', icon:'◈', cat:'memory', badge:'Memory',
     desc:'Generate an analytical report of your Claude Code usage patterns, common friction points, and productivity trends across sessions.',
     usage:'/insights' },
@@ -1156,6 +1162,9 @@ const PLUGINS = [
   { name: 'frontend-design', icon: '◈', cat: 'plugin', badge: 'Plugin',
     desc: 'Create distinctive, production-grade frontend interfaces with high design quality. Avoids generic AI aesthetics — generates creative, polished components and pages with considered typography, spacing, color, and interaction design. Trigger with <code>/frontend-design</code> in your session or reference it in your prompt.',
     usage: '/frontend-design\n/frontend-design "build a dark dashboard with charts"\nfrontend-design:frontend-design' },
+  { name: 'computer-use', icon: '⬡', cat: 'plugin', badge: 'Plugin',
+    desc: 'Enable Claude to control your computer — mouse clicks, keyboard input, and live screen observation — to interact with native applications and GUIs. Useful for validating native builds, testing UI flows, debugging visual bugs, and automating tasks that have no CLI or API. Enable via <code>/mcp</code> → select <strong>computer-use</strong> → Enable. Requires macOS, Pro or Max plan, Claude Code v2.1.85+, interactive session only (not available with <code>-p</code>), and Anthropic API (not Bedrock/Vertex).',
+    usage: '/mcp\n# Select computer-use → Enable\n# Grant Accessibility + Screen Recording permissions\n"Build and launch the app, then click through all tabs to verify nothing crashes"' },
 ];
 
 // ═══════════════════════════════════════════════════════
